@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.expo/
+release.keystore
+*.keystore
+.keystore_pass
+android/
+PixStr/
+releases/
+*.apk
+build instructions.txt
+AGENTS.md
+.DS_Store

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixStr</title>
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+<header>
+  <button id="themeBtn" title="Toggle theme">☀</button>
+  <div class="logo">
+    <div class="mark">P</div>
+    <h1>PixStr <span class="seal-badge" title="SEAL update">SEAL v1.1</span></h1>
+  </div>
+  <p>Turn images into text and back again · everything runs in your browser</p>
+</header>
+
+<nav class="tabs">
+    <button class="active" data-panel="imgInput">Image to Text</button>
+    <button data-panel="textInput">Text to Image</button>
+    <button data-panel="textText">Text to Text</button>
+  </nav>
+
+<main>
+  <!-- ============ IMAGE INPUT ============ -->
+  <section class="panel active" id="imgInput">
+    <div class="card">
+      <h2>Input Image</h2>
+      <p class="hint">Pick from gallery or paste a base64 string.</p>
+      <div class="dropzone" id="dzA"></div>
+      <input type="file" id="fileA" accept="image/*" hidden>
+      <div class="meta" id="imgInfo" hidden></div>
+      <div class="b64row">
+        <textarea id="b64In" placeholder="Or paste base64 / data:image URL here…"></textarea>
+        <button class="btn" id="loadB64Btn">Load</button>
+      </div>
+    </div>
+
+    <div class="card" id="modeCard" style="display:none">
+      <h2>Choose Output Mode</h2>
+      <p id="recText" class="hint"></p>
+      <p class="rec-question" id="recQuestion">Do you want ASCII (Recommended) or JPG?</p>
+      <div class="btnrow">
+        <button class="btn" id="asciiModeBtn">ASCII</button>
+        <button class="btn secondary" id="imgModeBtn">JPG</button>
+      </div>
+    </div>
+
+    <div class="card" id="asciiSettings" style="display:none">
+      <h2>ASCII Settings</h2>
+      <div class="field">
+        <label>Character width <output id="widthVal">100</output></label>
+        <input type="range" id="width" min="40" max="180" value="100">
+      </div>
+      <button class="btn" id="convertBtn">Convert to ASCII</button>
+      <div class="meta" id="statusA"></div>
+      <button class="btn secondary small" id="backA" style="margin-top:12px">← Back to ASCII or JPG choice</button>
+    </div>
+
+    <div class="card out" id="asciiOut">
+      <h2>ASCII Result</h2>
+      <canvas id="renderA" hidden></canvas>
+      <div class="skeleton" id="skelA" hidden>
+        <div style="width:100%"></div><div style="width:94%"></div><div style="width:88%"></div>
+        <div style="width:97%"></div><div style="width:90%"></div><div style="width:100%"></div>
+        <div style="width:95%"></div><div style="width:100%"></div>
+      </div>
+      <textarea id="outA" readonly placeholder="ASCII text appears here"></textarea>
+      <div class="meta" id="truncNoteA"></div>
+      <div class="btnrow">
+        <button class="btn secondary small" id="copyA">Copy</button>
+        <button class="btn secondary small" id="saveA">Download image</button>
+        <button class="btn secondary small" id="shareA">Share</button>
+      </div>
+    </div>
+
+    <div class="card" id="encodeSettings" style="display:none">
+      <h2>Image Encode Settings</h2>
+      <div class="field">
+        <label>Sealed</label>
+        <select id="imgSealed">
+          <option value="off">Off</option>
+          <option value="on">On</option>
+          <option value="auto">Auto</option>
+        </select>
+      </div>
+      <p class="warn" id="imgSealedWarn" style="display:none">Auto may not be as reliable as you think — verify your message after decoding.</p>
+      <div class="field">
+        <label>Quality</label>
+        <div class="seg" id="qualityModeSeg">
+          <button type="button" data-mode="auto" class="active">Auto</button>
+          <button type="button" data-mode="manual">Manual</button>
+        </div>
+      </div>
+      <div class="field" id="qualityField" style="display:none">
+        <label>Quality <output id="qualityVal">80</output></label>
+        <input type="range" id="quality" min="10" max="100" value="80">
+      </div>
+      <div class="field">
+        <label>Max dimension (px) <output id="maxDimVal">1000</output></label>
+        <input type="range" id="maxDim" min="128" max="2000" step="8" value="1000">
+      </div>
+      <button class="btn" id="encodeBtn">Encode</button>
+      <div class="meta" id="statusE"></div>
+      <button class="btn secondary small" id="backE" style="margin-top:12px">← Back to ASCII or JPG choice</button>
+    </div>
+
+    <div class="card out" id="codeOut">
+      <h2>Encoded Result</h2>
+      <textarea id="outE" readonly placeholder="Base64 string appears here"></textarea>
+      <div class="meta" id="truncNoteE"></div>
+      <div class="meta" id="statsE"></div>
+      <div class="bubble" id="codeSealBubble" style="display:none">Sealed — older clients can't read this.</div>
+      <div class="btnrow">
+        <button class="btn secondary small" id="copyE">Copy</button>
+        <button class="btn secondary small" id="viewE">View</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TEXT INPUT ============ -->
+  <section class="panel" id="textInput">
+    <div class="card">
+      <h2>Paste Text</h2>
+      <p class="hint">ASCII art or a base64 string (plain or data:image URL).</p>
+      <textarea id="inC" placeholder="Paste ASCII art or base64 here…"></textarea>
+      <div class="detected" id="detectedBadge" style="display:none"></div>
+      <div class="field" id="scaleField" style="display:none;margin-top:12px">
+        <label>Pixel scale <output id="scaleVal">8</output></label>
+        <input type="range" id="scale" min="1" max="32" value="8">
+      </div>
+      <button class="btn" id="goBtn" style="margin-top:14px">Render to Image</button>
+      <div class="meta" id="statusC">Paste ASCII art or a base64 string.</div>
+    </div>
+    <div class="card out" id="textImgOut">
+      <h2>Result</h2>
+      <div class="loadbar" id="loadBarC" hidden><div></div></div>
+      <canvas id="outC"></canvas>
+      <div class="btnrow">
+        <button class="btn secondary small" id="saveC">Download PNG</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TEXT → TEXT ============ -->
+  <section class="panel" id="textText">
+    <div class="card">
+      <h2>Encode / Obfuscate</h2>
+      <p class="hint">Transform text with various encoding methods.</p>
+      <textarea id="ttIn" placeholder="Enter text to encode…"></textarea>
+      <div class="field" style="margin-top:12px">
+        <label>Method</label>
+        <select id="ttEncodeType"></select>
+      </div>
+      <div class="field">
+        <label>Sealed</label>
+        <select id="ttSealed">
+          <option value="off">Off</option>
+          <option value="on">On</option>
+          <option value="auto">Auto</option>
+        </select>
+      </div>
+      <p class="warn" id="ttSealedWarn" style="display:none">Auto may not be as reliable as you think — verify your message after decoding.</p>
+      <button class="btn" id="ttEncodeBtn">Encode</button>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>Decode / Deobfuscate</h2>
+      <p class="hint">Reverse the transformation.</p>
+      <textarea id="ttDecodeIn" placeholder="Enter encoded text to decode…"></textarea>
+      <div class="field" style="margin-top:12px">
+        <label>Method</label>
+        <select id="ttDecodeType"></select>
+      </div>
+      <button class="btn" id="ttDecodeBtn">Decode</button>
+    </div>
+
+    <div class="card out" id="ttOut">
+      <h2>Result</h2>
+      <textarea id="ttResult" readonly placeholder="Result appears here"></textarea>
+      <div class="bubble" id="ttSealBubble" style="display:none">Sealed — older clients can't read this.</div>
+      <div class="bubble warn" id="ttSealNote" style="display:none">Sealed detected without a tag — auto may not be as reliable as you think.</div>
+      <div class="btnrow">
+        <button class="btn secondary small" id="ttCopy">Copy</button>
+        <button class="btn secondary small" id="ttShare">Share</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="dialog-overlay" id="sealDialog" style="display:none">
+  <div class="dialog">
+    <h2>Sealed mode</h2>
+    <p>SEAL update — how should new encodes be sealed?</p>
+    <p class="hint">Sealed messages can't be read by older clients. You can change this anytime.</p>
+    <button class="btn" data-seal="off">Off — plain encodes</button>
+    <button class="btn" data-seal="on">On — always seal</button>
+    <button class="btn" data-seal="auto">Auto — seal + detect warnings</button>
+    <button class="btn secondary small" data-seal="off">Dismiss (stays off)</button>
+  </div>
+</div>
+
+<footer>PixStr · image ↔ text, ascii art, codecs, and message obfuscation</footer>
+<div id="toast"></div>
+<div id="fade"></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
