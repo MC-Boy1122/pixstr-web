@@ -5,7 +5,7 @@ release.keystore
 *.keystore
 .keystore_pass
 android/
-PixStr/
+android-build/
 releases/
 *.apk
 build instructions.txt

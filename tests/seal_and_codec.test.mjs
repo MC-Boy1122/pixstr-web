@@ -10,9 +10,9 @@ import {
   sealPayload,
   unseal,
   unsealPayload,
-} from '../PixStrWeb/src/lib/textcodec.js'
-import { stripTag } from '../PixStrWeb/src/lib/utils.js'
+} from '../web/src/lib/textcodec.js'
 
+import { stripTag } from '../web/src/lib/utils.js'
 const stripTagFrom = (s) => stripTag(s)
 
 let passed = 0
